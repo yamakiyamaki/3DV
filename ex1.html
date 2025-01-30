@@ -42,6 +42,7 @@
   import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/loaders/FontLoader.js';
   import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
   import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   
 
         var scene = new THREE.Scene();
@@ -315,19 +316,33 @@
         const far = 50;
         const camera2 = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
         camera2.zoom = 0.2;
-        camera2.position.set(10, 0, 50);
+        camera2.position.set(10, 30, 50);
         camera2.lookAt(0, 20, 0); 
 
       
         
         // Initialize FirstPersonControls
-        const controls = new FirstPersonControls(camera, renderer.domElement);
-        controls.movementSpeed = 10; // Speed of movement
-        controls.lookSpeed = 0.1; // Speed of looking around
-        controls.lookVertical = true; 
-        controls.handleResize();
+        const FPcontrol = new FirstPersonControls(camera, renderer.domElement);
+        FPcontrol.movementSpeed = 10; // Speed of movement
+        FPcontrol.lookSpeed = 0.1; // Speed of looking around
+        FPcontrol.lookVertical = true; 
+        FPcontrol.handleResize();
+
+        // Initialize OrbitControls
+        const OBcontrol = new OrbitControls( camera2, renderer.domElement );
+
         const clock = new THREE.Clock();
         
+        let currentCamera = camera;
+        let currentControl = FPcontrol;
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "c") {
+              currentCamera = currentCamera === camera ? camera2 : camera;
+              currentControl = currentControl === FPcontrol ? OBcontrol : FPcontrol;
+              console.log("Camera switched");
+          }
+        });
+
         // scene.background = new THREE.Color(0xffffff); // Set background to white
         function render () {
           set_cross();
@@ -337,17 +352,17 @@
           // console.log(camera);
           // console.log(camera instanceof THREE.Camera); 
           // console.log(camera.constructor.name);
-          controls.update(clock.getDelta());
+          currentControl.update(clock.getDelta());
           console.log('camera1');
-          renderer.render(scene, camera);
-          
+          renderer.render(scene, currentCamera);
+          // setTimeout(() => {
+          //   renderer.render(scene, camera2);
+          //   console.log('camera2');
+          // }, 3000);
         };
         
         render();
-        // setTimeout(() => {
-        //   renderer.render(scene, camera2);
-        //   console.log('camera2');
-        // }, 3000);
+        
 
     </script>
   </body>
