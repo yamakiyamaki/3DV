@@ -43,6 +43,7 @@
     import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
     import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RectAreaLightHelper } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/helpers/RectAreaLightHelper.js';
     
 
         var scene = new THREE.Scene();
@@ -53,14 +54,100 @@
         renderer.shadowMap.type = THREE.PCFSoftShadowMap; // make shadow soft
         document.body.appendChild(renderer.domElement);      
         
-        // light
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(5, 10, 5);
-        light.castShadow = true;
-        light.shadow.mapSize.width = 2048;
-        light.shadow.mapSize.height = 2048;
-        light.shadow.radius = 5;
-        scene.add(light);
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        // Light
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        // DirectionalLight
+        // const light = new THREE.DirectionalLight(0xffffff, 1);
+        // light.position.set(0, 10, 0);
+        // light.castShadow = true;
+        // light.shadow.mapSize.width = 2048;
+        // light.shadow.mapSize.height = 2048;
+        // light.shadow.radius = 5;
+        // scene.add(light);
+
+        // ambient light
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); // 全体を明るくする
+        scene.add(ambientLight);
+
+        // RectAreaLight
+        const width = 0.1;
+        const height = 1.2;
+        const intensity = 100;
+
+        const rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        rectLight.position.set( 2, 3, 2 );
+        rectLight.lookAt( 2, 0, 2 );
+        scene.add( rectLight );
+        const rectLightHelper = new RectAreaLightHelper( rectLight );
+        rectLight.add( rectLightHelper );
+
+        const rectLight2 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        rectLight2.position.set( -2, 3, 2 );
+        rectLight2.lookAt( -2, 0, 2 );
+        scene.add( rectLight2 );
+        const rectLightHelper2 = new RectAreaLightHelper( rectLight2 );
+        rectLight2.add( rectLightHelper2 );
+
+        const rectLight3 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        rectLight3.position.set( 0, 3, 2 );
+        rectLight3.lookAt( 0, 0, 2 );
+        scene.add( rectLight3 );
+        const rectLightHelper3 = new RectAreaLightHelper( rectLight3 );
+        rectLight3.add( rectLightHelper3 );
+
+        const rectLight4 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        rectLight4.position.set( 2, 3, -3 );
+        rectLight4.lookAt( 2, 0, -3 );
+        scene.add( rectLight4 );
+        const rectLightHelper4 = new RectAreaLightHelper( rectLight4 );
+        rectLight4.add( rectLightHelper4 );
+
+        const rectLight5 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        rectLight5.position.set( -2, 3, -3 );
+        rectLight5.lookAt( -2, 0, -3 );
+        scene.add( rectLight5 );
+        const rectLightHelper5 = new RectAreaLightHelper( rectLight5 );
+        rectLight5.add( rectLightHelper5 );
+
+        const rectLight6 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        rectLight6.position.set( 0, 3, -3 );
+        rectLight6.lookAt( 0, 0, -3 );
+        scene.add( rectLight6 );
+        const rectLightHelper6 = new RectAreaLightHelper( rectLight6 );
+        rectLight6.add( rectLightHelper6 );
+
+        const rectLight7 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        rectLight7.position.set( 2, 3, -2 );
+        rectLight7.lookAt( 2, 0, -2 );
+        scene.add( rectLight7 );
+        const rectLightHelper7 = new RectAreaLightHelper( rectLight7 );
+        rectLight7.add( rectLightHelper7 );
+
+        const rectLight8 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        rectLight8.position.set( -2, 3, -2 );
+        rectLight8.lookAt( -2, 0, -2 );
+        scene.add( rectLight8 );
+        const rectLightHelper8 = new RectAreaLightHelper( rectLight8 );
+        rectLight8.add( rectLightHelper8 );
+
+        const rectLight9 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        rectLight9.position.set( 0, 3, -2 );
+        rectLight9.lookAt( 0, 0, -2 );
+        scene.add( rectLight9 );
+        const rectLightHelper9 = new RectAreaLightHelper( rectLight9 );
+        rectLight9.add( rectLightHelper9 );
+
+        // const rectLight10 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
+        // rectLight10.position.set( 0, 4, 0 );
+        // rectLight10.lookAt( 0, 0, 0 );
+        // scene.add( rectLight10 );
+        // const rectLightHelper10 = new RectAreaLightHelper( rectLight10 );
+        // rectLight10.add( rectLightHelper10 );
+
+       
+
+        
 
         // PerspectiveCamera
         var aspect = window.innerWidth / window.innerHeight;
@@ -103,25 +190,32 @@
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////
-        // Modeling
+        // Materials
         //////////////////////////////////////////////////////////////////////////////////////////////
 
         // materials
         // const matA = new THREE.MeshStandardMaterial({ color: 0x505050 }); // dark gray color
         // const matA = new THREE.MeshStandardMaterial({ color: 0x808080 }); // light gray color
-        const mat_white = new THREE.MeshStandardMaterial({ 
+        const mat_white = new THREE.MeshLambertMaterial({ 
             color: 0xffffff, //white
-            roughness: 0.3,
-            metalness: 0.0,
         });
-        const mat_lightGray = new THREE.MeshStandardMaterial({ 
+        const mat_lightGray = new THREE.MeshLambertMaterial({ 
             color: 0x808080, // light gray color
-            roughness: 0.3,
-            metalness: 0.2,
+            // roughness: 0.3,
+            // metalness: 0.2,
         });
+
+        const mat_red = new THREE.MeshLambertMaterial({ color: 0xff0000 }); // red
+        const mat_green = new THREE.MeshLambertMaterial({ color: 0x00ff00 }); // green
+
+
         const mat_left = new THREE.MeshLambertMaterial()
         const mat_center = new THREE.MeshPhysicalMaterial()
         const mat_right = new THREE.MeshPhongMaterial()
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        // Modeling
+        //////////////////////////////////////////////////////////////////////////////////////////////
 
         // table
         const g_plate = new THREE.BoxGeometry(1.6, 1, 0.02);
@@ -242,31 +336,46 @@
         floor.receiveShadow = true;
         scene.add(floor)
 
-        // wall1
-        const g_wall1 = new THREE.BoxGeometry(3, 0.05, 10);
-        const p_wall1 = new THREE.Mesh(g_wall1, mat_white);
+        // ceiling
+        const g_ceiling = new THREE.BoxGeometry(7, 0.05, 10);
+        const p_ceiling = new THREE.Mesh(g_ceiling, mat_white);
+        const ceiling = new THREE.Object3D();
+        ceiling.add(p_ceiling)
+        ceiling.position.set(0, 4, 0); 
+        ceiling.receiveShadow = true;
+        scene.add(ceiling)
+
+        // wall left
+        const g_wall1 = new THREE.BoxGeometry(4, 0.05, 10);
+        const p_wall1 = new THREE.Mesh(g_wall1, mat_red);
         const wall1 = new THREE.Object3D();
         wall1.add(p_wall1) 
         const wall1_1 = wall1.clone()
         wall1_1.rotation.z = Math.PI / 2
-        wall1_1.position.set(-3.5, 1.5, 0); 
+        wall1_1.position.set(-3.5, 2, 0); 
         wall1_1.receiveShadow = true;
         scene.add(wall1_1)
-        const wall1_2 = wall1_1.clone()
+
+        // wall right
+        const g_wall1_2 = new THREE.BoxGeometry(4, 0.05, 10);
+        const p_wall1_2 = new THREE.Mesh(g_wall1_2, mat_green);
+        const wall1_2 = new THREE.Object3D();
+        wall1_2.add(p_wall1_2)
         wall1_2.rotation.z = Math.PI / 2
-        wall1_2.position.set(3.5, 1.5, 0); 
+        wall1_2.position.set(3.5, 2, 0); 
         wall1_2.receiveShadow = true;
         scene.add(wall1_2)
 
-        // wall2
-        const g_wall2 = new THREE.BoxGeometry(7, 0.05, 3);
+        // wall back
+        const g_wall2 = new THREE.BoxGeometry(7, 0.05, 4);
         const p_wall2 = new THREE.Mesh(g_wall2, mat_white);
         const wall2 = new THREE.Object3D();
         wall2.add(p_wall2) 
         wall2.rotation.x = Math.PI / 2
-        wall2.position.set(0, 1.5, -5)
+        wall2.position.set(0, 2, -5)
         scene.add(wall2)
 
+        // Left
         const g_leftCone = new THREE.ConeGeometry(0.3, 0.5, 10)
         const leftCone = new THREE.Mesh(g_leftCone, mat_left)
         // const leftCone = new THREE.Object3D();
@@ -274,7 +383,17 @@
         leftCone.position.set(-1.5, 0.7+0.25, 2-(0.8*2)*3-0.3)
         scene.add(leftCone)
 
-        !!!! git kaiketsu
+        // center
+        const g_leftSphere = new THREE.SphereGeometry(0.25, 20, 20)
+        const leftSphere = new THREE.Mesh(g_leftSphere, mat_center)
+        leftSphere.position.set(0, 0.7+0.25, 2-(0.8*2)*3-0.3)
+        scene.add(leftSphere)
+
+        // right
+        const g_rightSphere = new THREE.CylinderGeometry(0.25, 0.25, 0.5)
+        const rightSphere = new THREE.Mesh(g_rightSphere, mat_right)
+        rightSphere.position.set(1.5, 0.7+0.25, 2-(0.8*2)*3-0.3)
+        scene.add(rightSphere)
 
 
 
@@ -285,7 +404,7 @@
         //////////////////////////////////////////////////////////////////////////////////////////////
         // scene.background = new THREE.Color(0xffffff); // Set background to white
         function render (time) {
-            set_cross();
+            // set_cross();
             requestAnimationFrame(render);
             renderer.render(scene, camera);
             controls.update();
