@@ -92,21 +92,15 @@
 				directionalLight.shadow.camera.bottom = - 5;
 				directionalLight.shadow.mapSize.width = 1024; // cell size of the shadow map
 				directionalLight.shadow.mapSize.height = 1024;
-        directionalLight.shadow.bias = -0.001;
         scene.add(directionalLight.target);
         const dLightHelper = new THREE.DirectionalLightHelper(directionalLight);
-        // scene.add(dLightHelper); 
+        scene.add(dLightHelper); 
         const dirShadowCameraHelper = new THREE.CameraHelper( directionalLight.shadow.camera );
-		    // scene.add( dirShadowCameraHelper );
+		    scene.add( dirShadowCameraHelper );
 
         // A point light
         const pointLight = new THREE.DirectionalLight(0xffffff, lightParams.pointLightIntensity, 50, 1.0); //(color, intensity, distance, attenuation)
         pointLight.position.set(0, 3.8, 0);
-        pointLight.castShadow = true;
-        pointLight.shadow.mapSize.width = 1024;
-        pointLight.shadow.mapSize.height = 1024;
-        pointLight.shadow.camera.near = 0.5;
-        pointLight.shadow.camera.far = 500;
         // scene.add(pointLight);
 
         // A spot light
@@ -117,16 +111,30 @@
 				spotLight.shadow.camera.far = 5;
 				spotLight.shadow.mapSize.width = 1024;
 				spotLight.shadow.mapSize.height = 1024;
-        spotLight.shadow.bias = -0.001;
         spotLight.target.position.set( 0, 0, -4 );
         scene.add( spotLight.target );
         spotLight.target.updateMatrixWorld();
         scene.add(spotLight);
+        
 
         const spotShadowCameraHelper = new THREE.CameraHelper( spotLight.shadow.camera );
 		    // scene.add( spotShadowCameraHelper );
 
-      
+        function updateCamera(light, cameraHelper) {//TODO: understand
+
+          // update the light target's matrixWorld because it's needed by the helper
+          light.target.updateMatrixWorld();
+          // update the light's shadow camera's projection matrix
+          light.shadow.camera.updateProjectionMatrix();
+          // and now update the camera helper we're using to show the light's shadow camera
+          cameraHelper.update();
+
+        }
+
+        updateCamera(directionalLight, dirShadowCameraHelper);
+        // updateCamera(spotLight, spotShadowCameraHelper);
+        // setTimeout( updateCamera );//to avoid issues with synchronization or rendering artifacts when working with Three.js and WebGL.
+
         // A hemisphere light
         const hemisphereLight = new THREE.HemisphereLight(0x888888, 0x0000FF, lightParams.hemisphereLightIntensity); // color from upside, color from downside
         hemisphereLight.position.set(0, 3.8, 0)
@@ -255,17 +263,15 @@
         // table
         const g_plate = new THREE.BoxGeometry(1.6, 1, 0.02);
         const p_plate = new THREE.Mesh(g_plate, mat_gui);
+        p_plate.castShadow = true;
+        p_plate.receiveShadow = true;
         const g_leg = new THREE.CylinderGeometry(0.05, 0.05, 0.7, 5);
         const p_leg = new THREE.Mesh(g_leg, mat_white);
         const table = new THREE.Object3D();
-        const p_leg1 = p_leg.clone();
+        const p_leg1 = p_leg.clone()
         const p_leg2 = p_leg.clone()
-        p_plate.castShadow = true;
-        p_plate.receiveShadow = true;
-        p_leg1.castShadow = true;// Be careful! castShadow should be put actual parent mesh. e.g. cloned one
-        p_leg1.receiveShadow = true;
-        p_leg2.castShadow = true;
-        p_leg2.receiveShadow = true;
+        // p_plate.castShadow = true;
+        // p_plate.receiveShadow = true;
         p_plate.position.set(0, 0.7, 0); 
         p_plate.rotation.x = Math.PI / 2;
         p_leg1.position.set(0.65, 0.35, 0);
@@ -273,6 +279,7 @@
         table.add(p_plate);
         table.add(p_leg1);
         table.add(p_leg2)
+        table.castShadow = true;
         table.rotation.y = Math.PI / 2
         table.position.set(0, 0, 2)
 
@@ -293,7 +300,8 @@
 
         const tables1 = tables.clone()
         tables1.position.set(2, 0, 0)
-
+        tables1.receiveShadow = true;
+        tables1.castShadow = true;
         scene.add(tables1)
         const tables2 = tables.clone()
         tables2.position.set(-2, 0, 0)
@@ -302,10 +310,14 @@
         const table5 = table.clone()
         table5.rotation.y = Math.PI 
         table5.position.set(-0.8, 0, 2-(0.8*2)*3-0.3)
+        table5.castShadow = true;
+        table5.receiveShadow = true;
         scene.add(table5)
         const table6 = table.clone()
         table6.rotation.y = Math.PI 
         table6.position.set(0.8, 0, 2-(0.8*2)*3-0.3)
+        table6.castShadow = true;
+        table6.receiveShadow = true;
         scene.add(table6)
 
         // chair
@@ -319,18 +331,6 @@
         const p_leg2_c = p_leg_c.clone()
         const p_leg3_c = p_leg_c.clone()
         const p_leg4_c = p_leg_c.clone()
-        p_plate_c.castShadow = true;
-        p_plate_c.receiveShadow = true;
-        p_plate2_c.castShadow = true;
-        p_plate2_c.receiveShadow = true;
-        p_leg1_c.castShadow = true;
-        p_leg1_c.receiveShadow = true;
-        p_leg2_c.castShadow = true;
-        p_leg2_c.receiveShadow = true;
-        p_leg3_c.castShadow = true;
-        p_leg3_c.receiveShadow = true;
-        p_leg4_c.castShadow = true;
-        p_leg4_c.receiveShadow = true;
         p_plate_c.position.set(0, 0.5, 0); 
         p_plate2_c.rotation.z = Math.PI / 2;
         p_plate2_c.rotation.y = Math.PI / 2;
@@ -345,6 +345,7 @@
         chair.add(p_leg2_c)
         chair.add(p_leg3_c);
         chair.add(p_leg4_c)
+        chair.castShadow = true;
         chair.rotation.y = Math.PI / 2
 
         const chairs = new THREE.Object3D();
@@ -364,28 +365,36 @@
         chair5.position.set(0, 0, -1.0*4)
         chairs.add(chair5)
         chairs.position.set(2.5, 0, 2)
+        chairs.receiveShadow = true;
+        chairs.castShadow = true; 
         scene.add(chairs)
         const chairs2 = chairs.clone()
         chairs2.rotation.y = Math.PI
         chairs2.position.set(-2.5, 0, -2)
+        chairs2.receiveShadow = true;
+        chairs2.castShadow = true;
         scene.add(chairs2)
 
         const chair6 = chair.clone()
         chair6.position.set(-1.5, 0, -3.5)
         chair6.rotation.y = Math.PI 
+        chair6.castShadow = true;
+        chair6.receiveShadow = true;
         scene.add(chair6)
         const chair7 = chair.clone()
         chair7.position.set(1, 0, -3.5)
         chair7.rotation.y = Math.PI 
+        chair7.castShadow = true;
+        chair7.receiveShadow = true;
         scene.add(chair7)
 
         // floor
         const g_floor = new THREE.BoxGeometry(7, 0.3, 10);
         const p_floor = new THREE.Mesh(g_floor, matLam_lightGray);
-        p_floor.receiveShadow = true;
         const floor = new THREE.Object3D();
         floor.add(p_floor)
         floor.position.set(0, -0.15, 0); 
+        floor.receiveShadow = true;
         scene.add(floor)
 
         // ceiling
@@ -394,7 +403,7 @@
         const ceiling = new THREE.Object3D();
         ceiling.add(p_ceiling)
         ceiling.position.set(0, 4, 0); 
-        p_ceiling.receiveShadow = true;
+        ceiling.receiveShadow = true;
         scene.add(ceiling)
 
         // wall left
@@ -405,7 +414,7 @@
         const wall1_1 = wall1.clone()
         wall1_1.rotation.z = Math.PI / 2
         wall1_1.position.set(-3.5, 2, 0); 
-        p_wall1.receiveShadow = true;
+        wall1_1.receiveShadow = true;
         scene.add(wall1_1)
 
         // wall right
@@ -415,7 +424,7 @@
         wall1_2.add(p_wall1_2)
         wall1_2.rotation.z = Math.PI / 2
         wall1_2.position.set(3.5, 2, 0); 
-        p_wall1_2.receiveShadow = true;
+        wall1_2.receiveShadow = true;
         scene.add(wall1_2)
 
         // wall back
@@ -425,7 +434,7 @@
         wall2.add(p_wall2) 
         wall2.rotation.x = Math.PI / 2
         wall2.position.set(0, 2, -5)
-        p_wall2.receiveShadow = true;
+        wall2.receiveShadow = true;
         scene.add(wall2)
 
         // Left
@@ -452,7 +461,7 @@
         scene.add(rightSphere)
 
         //////////////////////////////////////////////////////////////////////////////////////////////
-        // GUI 
+        // GUI //TODO: create gui for shadow
         //////////////////////////////////////////////////////////////////////////////////////////////
         const gui = new GUI( { title: 'GUI' } );
         function guiTable(gui){
@@ -511,14 +520,30 @@
           folder.add(hemisphereLight, 'intensity', 0, 5, 0.01).name('intensity');
         }
 
-        // shadow
-        function guiShadow(gui, light){
-          gui.add(light.shadow.mapSize, 'width', 10, 1024).name('shadow map width'); // width of shadow
-          gui.add(light.shadow.mapSize, 'height', 10, 1024).name('shadow map height'); // height of shadow
-          // gui.add(light.shadow.camera, 'near', 0.1, 100).name('shadow near');
-          // gui.add(light.shadow.camera, 'far', 0.1, 100).name('shadow far');
+        // Update Function to Refresh Shadow Map
+        function updateShadowMap(light) {
+              // light.shadow.map.dispose();
+              light.shadow.map = null;
+              light.shadow.camera.updateProjectionMatrix();
+              spotShadowCameraHelper.update();
         }
+        
+        // shadow
+        function guiShadow(gui, light, cameraHelper){
+          const shadowFolder = gui.addFolder('shadow');
 
+          // Add GUI Controls for Shadow Properties
+          shadowFolder.add(light.shadow, 'bias', -0.01, 0.01).step(0.0001).name('Shadow Bias');
+          // shadowFolder.add(light.shadow.mapSize, 'width', 256, 2048).step(128).name('Map Width').onChange(updateCamera(light, cameraHelper));
+          // shadowFolder.add(light.shadow.mapSize, 'height', 256, 2048).step(128).name('Map Height').onChange(updateCamera(light, cameraHelper));
+          shadowFolder.add(light.shadow.camera, 'near', 0.1, 50).step(0.1).name('Camera Near').onChange(updateCamera(light, cameraHelper));
+          // shadowFolder.add(light.shadow.camera, 'near', 0.1, 50).step(0.1).name('Camera Near');
+
+          shadowFolder.add(light.shadow.camera, 'far', 0, 50).step(1).name('Camera Far').onChange(updateCamera(light, cameraHelper));
+          shadowFolder.open();
+          spotShadowCameraHelper.update();
+        }
+          
         // GUI execution
         const lightTypes = {
           type: 'SpotLight', // Default selection
@@ -540,12 +565,11 @@
 
 
         guiTable(gui);
+        guiShadow(gui, spotLight, spotShadowCameraHelper);
+        // guiShadow(gui, directionalLight, spotShadowCameraHelper);
         guiPointLight(gui);
-        guiShadow(gui, pointLight);
         guiDirectionalLight(gui);
-        guiShadow(gui, directionalLight);
         guiSpotLight(gui);
-        guiShadow(gui, spotLight);
         guiHemisphereLight(gui);
 
       
@@ -557,7 +581,6 @@
             
             dLightHelper.update();
             spotShadowCameraHelper.update();
-            dirShadowCameraHelper.update();
             requestAnimationFrame(render);
             renderer.render(scene, camera);
             controls.update();
