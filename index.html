@@ -36,6 +36,9 @@
 
 <script type="module">
   import * as THREE from 'three';
+  import {VRButton} from 'three/addons/webxr/VRButton.js';
+  import {XRButton} from 'three/addons/webxr/XRButton.js';
+  import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';//mr
   // import { TextGeometry } from '/three/examples/jsm/geometries/TextGeometry.js';
   // import { FontLoader } from '/three/examples/jsm/loaders/FontLoader.js';
   import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/geometries/TextGeometry.js';
@@ -44,13 +47,19 @@
   import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
   import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   
-
+        // const canvas = document.querySelector('#c');
         var scene = new THREE.Scene();
         var renderer = new THREE.WebGLRenderer();
-        // console.log(renderer.context);
+        // const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
+        renderer.xr.enabled = true;//xr
+        // document.body.appendChild(renderer.domElement);//xr
+        // document.body.appendChild(VRButton.createButton(renderer));//xr
+        document.body.appendChild( XRButton.createButton( renderer, {
+					'optionalFeatures': [ 'depth-sensing' ],
+					'depthSensing': { 'usagePreference': [ 'gpu-optimized' ], 'dataFormatPreference': [] }
+				} ) );//mr
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
+        
         // // show image
         // var geometry = new THREE.BoxGeometry(0, 2, 1);
         // const textureLoader = new THREE.TextureLoader();
@@ -92,7 +101,8 @@
         // PerspectiveCamera
         var aspect = window.innerWidth / window.innerHeight;
         var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
-        camera.position.set(0, 80, 80); // (X, Y, Z)
+        // camera.position.set(0, 80, 80); // (X, Y, Z)//xr
+        camera.position.set(0, 1.6, 80); //xr
         camera.lookAt(0, 0, 0); 
 
         // OrthographicCamera
@@ -337,12 +347,21 @@
         scene.add(sholder_L);
         scene.add(sholder_R);
 
-        // TODO: reduce size of the body
+        let controller, controllerGrip, raycaster;//mr
+        controller = renderer.xr.getController( 0 );
+        const controllerModelFactory = new XRControllerModelFactory();//mr
+        controllerGrip = renderer.xr.getControllerGrip( 0 );//mr
+				controllerGrip.add( controllerModelFactory.createControllerModel( controllerGrip ) );//mr
+				scene.add( controllerGrip );//mr
+
+        raycaster = new THREE.Raycaster();
+        raycaster.setFromXRController( controller );
+
 
         scene.background = new THREE.Color(0xffffff); // Set background to white
         function render (time) {
             set_cross();
-            requestAnimationFrame(render);
+            // requestAnimationFrame(render);//xr
             
             // currentControl.update(clock.getDelta());
             // console.log('camera1');
@@ -373,6 +392,7 @@
             R8_p2.rotation.y = -(Math.sin(Date.now() * 0.001 + Math.PI / 2) * 0.3);
           
         };
+        renderer.setAnimationLoop(render);//xr
         render();
         
 
