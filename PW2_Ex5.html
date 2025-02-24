@@ -169,17 +169,29 @@
         const rectLightHelper9 = new RectAreaLightHelper( rectLight9 );
         rectLight9.add( rectLightHelper9 );
 
-        const rectLight10 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
-        rectLight10.position.set( 0, 4, 0 );
-        rectLight10.lookAt( 0, 0, 0 );
-        scene.add( rectLight10 );
-        const rectLightHelper10 = new RectAreaLightHelper( rectLight10 );
-        rectLight10.add( rectLightHelper10 );
+        // Wall light
+        // left
+        const wallLight_l = new THREE.RectAreaLight( 0x00ff00, intensity,  10, 4 );
+        wallLight_l.position.set( 3.5, 2, 0 );
+        wallLight_l.lookAt( 0, 2, 0 );
+        
+        scene.add( wallLight_l );
+        const wallLightHelper_l = new RectAreaLightHelper( wallLight_l );
+        wallLight_l.add( wallLightHelper_l );
+
+        // right
+        const wallLight_r = new THREE.RectAreaLight( 0xff0000, intensity,  10, 4 );
+        wallLight_r.position.set( -3.5, 2, 0 );
+        wallLight_r.lookAt( 0, 2, 0 );
+        
+        scene.add( wallLight_r );
+        const wallLightHelper_r = new RectAreaLightHelper( wallLight_r );
+        wallLight_r.add( wallLightHelper_r );
 
        
 
         
-
+        // Camera
         // PerspectiveCamera
         var aspect = window.innerWidth / window.innerHeight;
         const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
@@ -199,32 +211,7 @@
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Functions
         //////////////////////////////////////////////////////////////////////////////////////////////
-        function mark_closs(x, y, z){
-            const material = new THREE.LineBasicMaterial( { color: 0x808080 } );
-            const points = [];
-            points.push( new THREE.Vector3( - 0.1, 0, 0 ) );
-            // points.push( new THREE.Vector3( 0, 10, 0 ) );
-            points.push( new THREE.Vector3( 0.1, 0, 0 ) );
-
-            const geometry = new THREE.BufferGeometry().setFromPoints( points );
-            const line_x = new THREE.Line( geometry, material );
-            const line_y = new THREE.Line( geometry, material );
-            line_x.position.set(x, y, z);
-            line_y.position.set(x, y, z);
-            line_y.rotation.y = Math.PI / 2;
-            scene.add( line_x );
-            scene.add( line_y );
-        }
-        function set_cross(){
-            const x = 0
-            const y = 0
-            const z = 0
-            for ( let x = -10; x < 10; x += 5 ) {
-            for ( let z = -10; z < 10; z += 5 ) {
-                mark_closs(x, y, z);
-            }
-            }
-        }
+        
         
         
 
@@ -409,7 +396,7 @@
         wall1_1.rotation.z = Math.PI / 2
         wall1_1.position.set(-3.5, 2, 0); 
         wall1_1.receiveShadow = true;
-        scene.add(wall1_1)
+        // scene.add(wall1_1)
 
         // wall right
         const g_wall1_2 = new THREE.BoxGeometry(4, 0.05, 10);
@@ -419,7 +406,7 @@
         wall1_2.rotation.z = Math.PI / 2
         wall1_2.position.set(3.5, 2, 0); 
         wall1_2.receiveShadow = true;
-        scene.add(wall1_2)
+        // scene.add(wall1_2)
 
         // wall back
         const g_wall2 = new THREE.BoxGeometry(7, 0.05, 4);
@@ -430,6 +417,7 @@
         wall2.position.set(0, 2, -5)
         scene.add(wall2)
 
+        // Three objects
         // Left
         const g_leftCone = new THREE.ConeGeometry(0.3, 0.5, 10)
         const leftCone = new THREE.Mesh(g_leftCone, mat_left)
@@ -452,28 +440,29 @@
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         // GUI
+        // gui.add(the parameter(s) I wanna control, 'the name of the parameter', min, max, step).name('the name I wanna set').onChange(function() { the function I wanna call })
         //////////////////////////////////////////////////////////////////////////////////////////////
         
         const gui = new GUI( { title: 'GUI' } );
-				gui.add( lightParams, 'ambientLightIntensity', 0, 1, 0.01 ).name( 'Ambient light intensity' )
-					.onChange( function () {
-						ambientLight.intensity = lightParams.ambientLightIntensity; render();
-					} );
-        gui.addColor(tableColor, 'color').name('Table color')
-          .onChange((value) => {
-            p_plate.material.color.set(value); render();
-        });
-        const lightTypes = {
-          type: 'SpotLight', // Default selection
-        };
-        gui.add( lightParams, 'pointLightIntensity', 0, 1, 0.01 ).name( 'point light intensity' )
-        .onChange( function () {
-          pointLight.intensity = lightParams.pointLightIntensity; render();
-        });
+				// gui.add( lightParams, 'ambientLightIntensity', 0, 1, 0.01 ).name( 'Ambient light intensity' )
+				// 	.onChange( function () {
+				// 		ambientLight.intensity = lightParams.ambientLightIntensity; render();
+				// 	} );
+        // gui.addColor(tableColor, 'color').name('Table color')
+        //   .onChange((value) => {
+        //     p_plate.material.color.set(value); render();
+        // });
+        // const lightTypes = {
+        //   type: 'SpotLight', // Default selection
+        // };
+        // gui.add( lightParams, 'pointLightIntensity', 0, 1, 0.01 ).name( 'point light intensity' )
+        // .onChange( function () {
+        //   pointLight.intensity = lightParams.pointLightIntensity; render();
+        // });
 
 
 
-        // functions
+        // GUI functions
         function getObjectsKeys( obj ) {
 
           const keys = [];
@@ -541,27 +530,72 @@
 
         }
 
-        function guiMaterial( gui, material, geometry ) {
+        // function guiMaterial( gui, material, geometrie ) {
 
-          const folder = gui.addFolder( 'THREE.Material' );
+        //   const folder = gui.addFolder( 'THREE.Material' );
 
-          folder.add( material, 'transparent' ).onChange( needsUpdate( material, geometry ) );
-          folder.add( material, 'opacity', 0, 1 ).step( 0.01 );
-          // folder.add( material, 'blending', constants.blendingMode );
-          // folder.add( material, 'blendSrc', constants.destinationFactors );
-          // folder.add( material, 'blendDst', constants.destinationFactors );
-          // folder.add( material, 'blendEquation', constants.equations );
-          folder.add( material, 'depthTest' ); // Determines whether the depth of the object is tested against the depth buffer(data space) to decide if it should be visible.
-          folder.add( material, 'depthWrite' ); // Controls whether the object’s depth information is written to the depth buffer.
-          // folder.add( material, 'polygonOffset' );
-          // folder.add( material, 'polygonOffsetFactor' );
-          // folder.add( material, 'polygonOffsetUnits' );
-          folder.add( material, 'alphaTest', 0, 1 ).step( 0.1 ).onChange( needsUpdate( material, geometry ) ); //alphaTest is a property in Three.js materials that controls the visibility of pixels based on their alpha (transparency) values.
-          folder.add( material, 'alphaHash' ).onChange( needsUpdate( material, geometry ) ); // change geometry to small points depends on transparency
-          folder.add( material, 'visible' );
-          folder.add( material, 'side', constants.side ).onChange( needsUpdate( material, geometry ) );
+        //   folder.add( material, 'transparent' ).onChange( needsUpdate( material, geometrie ) );
+        //   folder.add( material, 'opacity', 0, 1 ).step( 0.01 );
+        //   // folder.add( material, 'blending', constants.blendingMode );
+        //   // folder.add( material, 'blendSrc', constants.destinationFactors );
+        //   // folder.add( material, 'blendDst', constants.destinationFactors );
+        //   // folder.add( material, 'blendEquation', constants.equations );
+        //   folder.add( material, 'depthTest' ); // Determines whether the depth of the object is tested against the depth buffer(data space) to decide if it should be visible.
+        //   folder.add( material, 'depthWrite' ); // Controls whether the object’s depth information is written to the depth buffer.
+        //   // folder.add( material, 'polygonOffset' );
+        //   // folder.add( material, 'polygonOffsetFactor' );
+        //   // folder.add( material, 'polygonOffsetUnits' );
+        //   folder.add( material, 'alphaTest', 0, 1 ).step( 0.1 ).onChange( needsUpdate( material, geometrie ) ); //alphaTest is a property in Three.js material that controls the visibility of pixels based on their alpha (transparency) values.
+        //   folder.add( material, 'alphaHash' ).onChange( needsUpdate( material, geometrie ) ); // change geometrie to small points depends on transparency
+        //   folder.add( material, 'visible' );
+        //   folder.add( material, 'side', constants.side ).onChange( needsUpdate( material, geometrie ) );
 
+        //   }
+
+        function guiMaterials(gui, materials, geometries) { //TODO: integrate more parameters
+          const folder = gui.addFolder('THREE.Material');
+
+          // Helper function to update all materials
+          function updateMaterials(property, value) {
+              Object.values(materials).forEach(material => {
+                  material[property] = value;
+                  material.needsUpdate = true;
+              });
           }
+
+          // Transparent Property
+          folder.add({ transparent: false }, 'transparent').onChange(value => {
+              updateMaterials('transparent', value);
+          });
+          // Opacity Property
+          folder.add({ opacity: 1 }, 'opacity', 0, 1).step(0.01).onChange(value => {
+              updateMaterials('opacity', value);
+          });
+          // Depth Test Property
+          folder.add({ depthTest: true }, 'depthTest').onChange(value => {
+              updateMaterials('depthTest', value);
+          });
+          // Depth Write Property
+          folder.add({ depthWrite: true }, 'depthWrite').onChange(value => {
+              updateMaterials('depthWrite', value);
+          });
+          // Alpha Test Property
+          folder.add({ alphaTest: 0 }, 'alphaTest', 0, 1).step(0.1).onChange(value => {
+              updateMaterials('alphaTest', value);
+          });
+          // Visible Property
+          folder.add({ visible: true }, 'visible').onChange(value => {
+              updateMaterials('visible', value);
+          });
+          // Side Property
+          folder.add({ side: THREE.FrontSide }, 'side', {
+              FrontSide: THREE.FrontSide,
+              BackSide: THREE.BackSide,
+              DoubleSide: THREE.DoubleSide
+          }).onChange(value => {
+              updateMaterials('side', parseInt(value));
+          });
+        }
 
         function guiMeshLambertMaterial( gui, material, geometry ) {
 
@@ -667,7 +701,7 @@
 
         }
 
-        // Variables
+        // GUI Variables
         const textureLoader = new THREE.TextureLoader();
 			  const cubeTextureLoader = new THREE.CubeTextureLoader();
         const constants = {
@@ -762,29 +796,25 @@
         // const matcapKeys = getObjectsKeys( matcaps );
         const alphaMapKeys = getObjectsKeys( alphaMaps );
         // const gradientMapKeys = getObjectsKeys( gradientMaps );
-        
 
-        // // Create Material with Environment Map
-        // const material = new THREE.MeshStandardMaterial({
-        //   color: 0xffffff,
-        //   envMap: envMap,
-        //   metalness: 1.0,    // Reflective
-        //   roughness: 0.0     // Glossy
-        // });
-
-        const test_geometry = new THREE.TorusKnotGeometry( 0.3, 0.05, 100, 16 ); 
-        const test = new THREE.Mesh(test_geometry, mat_left)
-        test.position.set(0, 1, 0)
-        scene.add(test)
-
-        guiMaterial( gui, mat_left, test_geometry );
-        guiMaterial( gui, mat_center, test_geometry );
-        guiMaterial( gui, mat_right, test_geometry );
-        guiMeshLambertMaterial( gui, mat_left, test_geometry );
-        guiMeshPhysicalMaterial( gui, mat_center, centerSphere )
-        guiMeshPhongMaterial( gui, mat_right, rightCylinder )
+        // const test_geometry = new THREE.TorusKnotGeometry( 0.3, 0.05, 100, 16 ); 
+        // const test = new THREE.Mesh(test_geometry, mat_left)
+        // test.position.set(0, 1, 0)
+        // scene.add(test)
 
         
+
+        // GUI execution
+        // guiMaterial( gui, mat_left, g_leftCone );
+        // guiMaterial( gui, mat_center, g_centerSphere );
+        // guiMaterial( gui, mat_right, g_rightCylinder );
+        const materials = {mat_left, mat_center, mat_right}
+        const geometries = {g_leftCone, g_centerSphere, g_rightCylinder}
+        guiMaterials( gui, materials, geometries );
+        guiMeshLambertMaterial( gui, mat_left, leftCone );
+        guiMeshPhysicalMaterial( gui, mat_center, centerSphere );
+        guiMeshPhongMaterial( gui, mat_right, rightCylinder );
+
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Rendrer
         //////////////////////////////////////////////////////////////////////////////////////////////

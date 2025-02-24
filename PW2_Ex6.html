@@ -294,6 +294,8 @@
 
         const tables1 = tables.clone()
         tables1.position.set(2, 0, 0)
+        tables1.castShadow = true;
+        tables1.receiveShadow = true;
         scene.add(tables1)
         const tables2 = tables.clone()
         tables2.position.set(-2, 0, 0)
@@ -440,7 +442,6 @@
         // GUI
         //////////////////////////////////////////////////////////////////////////////////////////////
         const gui = new GUI( { title: 'GUI' } );
-
         function guiTable(gui){
           const folder = gui.addFolder('Table');
           folder.addColor(p_plate.material, 'color').name('color');

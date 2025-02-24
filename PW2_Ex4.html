@@ -168,14 +168,6 @@
         scene.add( rectLight9 );
         const rectLightHelper9 = new RectAreaLightHelper( rectLight9 );
         rectLight9.add( rectLightHelper9 );
-
-        const rectLight10 = new THREE.RectAreaLight( 0xffffff, intensity,  height, width );
-        rectLight10.position.set( 0, 4, 0 );
-        rectLight10.lookAt( 0, 0, 0 );
-        scene.add( rectLight10 );
-        const rectLightHelper10 = new RectAreaLightHelper( rectLight10 );
-        rectLight10.add( rectLightHelper10 );
-
        
 
         
@@ -199,32 +191,7 @@
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Functions
         //////////////////////////////////////////////////////////////////////////////////////////////
-        function mark_closs(x, y, z){
-            const material = new THREE.LineBasicMaterial( { color: 0x808080 } );
-            const points = [];
-            points.push( new THREE.Vector3( - 0.1, 0, 0 ) );
-            // points.push( new THREE.Vector3( 0, 10, 0 ) );
-            points.push( new THREE.Vector3( 0.1, 0, 0 ) );
-
-            const geometry = new THREE.BufferGeometry().setFromPoints( points );
-            const line_x = new THREE.Line( geometry, material );
-            const line_y = new THREE.Line( geometry, material );
-            line_x.position.set(x, y, z);
-            line_y.position.set(x, y, z);
-            line_y.rotation.y = Math.PI / 2;
-            scene.add( line_x );
-            scene.add( line_y );
-        }
-        function set_cross(){
-            const x = 0
-            const y = 0
-            const z = 0
-            for ( let x = -10; x < 10; x += 5 ) {
-            for ( let z = -10; z < 10; z += 5 ) {
-                mark_closs(x, y, z);
-            }
-            }
-        }
+        
         
         
 
@@ -430,6 +397,7 @@
         wall2.position.set(0, 2, -5)
         scene.add(wall2)
 
+        // Three objects
         // Left
         const g_leftCone = new THREE.ConeGeometry(0.3, 0.5, 10)
         const leftCone = new THREE.Mesh(g_leftCone, mat_left)
@@ -473,7 +441,7 @@
 
 
 
-        // functions
+        // Gui functions
         function getObjectsKeys( obj ) {
 
           const keys = [];
@@ -541,27 +509,72 @@
 
         }
 
-        function guiMaterial( gui, material, geometry ) {
+        // function guiMaterial( gui, material, geometry ) {
 
-          const folder = gui.addFolder( 'THREE.Material' );
+        //   const folder = gui.addFolder( 'THREE.Material' );
 
-          folder.add( material, 'transparent' ).onChange( needsUpdate( material, geometry ) );
-          folder.add( material, 'opacity', 0, 1 ).step( 0.01 );
-          // folder.add( material, 'blending', constants.blendingMode );
-          // folder.add( material, 'blendSrc', constants.destinationFactors );
-          // folder.add( material, 'blendDst', constants.destinationFactors );
-          // folder.add( material, 'blendEquation', constants.equations );
-          folder.add( material, 'depthTest' ); // Determines whether the depth of the object is tested against the depth buffer(data space) to decide if it should be visible.
-          folder.add( material, 'depthWrite' ); // Controls whether the object’s depth information is written to the depth buffer.
-          // folder.add( material, 'polygonOffset' );
-          // folder.add( material, 'polygonOffsetFactor' );
-          // folder.add( material, 'polygonOffsetUnits' );
-          folder.add( material, 'alphaTest', 0, 1 ).step( 0.1 ).onChange( needsUpdate( material, geometry ) ); //alphaTest is a property in Three.js materials that controls the visibility of pixels based on their alpha (transparency) values.
-          folder.add( material, 'alphaHash' ).onChange( needsUpdate( material, geometry ) ); // change geometry to small points depends on transparency
-          folder.add( material, 'visible' );
-          folder.add( material, 'side', constants.side ).onChange( needsUpdate( material, geometry ) );
+        //   folder.add( material, 'transparent' ).onChange( needsUpdate( material, geometry ) );
+        //   folder.add( material, 'opacity', 0, 1 ).step( 0.01 );
+        //   // folder.add( material, 'blending', constants.blendingMode );
+        //   // folder.add( material, 'blendSrc', constants.destinationFactors );
+        //   // folder.add( material, 'blendDst', constants.destinationFactors );
+        //   // folder.add( material, 'blendEquation', constants.equations );
+        //   folder.add( material, 'depthTest' ); // Determines whether the depth of the object is tested against the depth buffer(data space) to decide if it should be visible.
+        //   folder.add( material, 'depthWrite' ); // Controls whether the object’s depth information is written to the depth buffer.
+        //   // folder.add( material, 'polygonOffset' );
+        //   // folder.add( material, 'polygonOffsetFactor' );
+        //   // folder.add( material, 'polygonOffsetUnits' );
+        //   folder.add( material, 'alphaTest', 0, 1 ).step( 0.1 ).onChange( needsUpdate( material, geometry ) ); //alphaTest is a property in Three.js materials that controls the visibility of pixels based on their alpha (transparency) values.
+        //   folder.add( material, 'alphaHash' ).onChange( needsUpdate( material, geometry ) ); // change geometry to small points depends on transparency
+        //   folder.add( material, 'visible' );
+        //   folder.add( material, 'side', constants.side ).onChange( needsUpdate( material, geometry ) );
 
+        //   }
+
+        function guiMaterials(gui, materials, geometries) {//TODO: integrate more parameters
+          const folder = gui.addFolder('THREE.Material');
+
+          // Helper function to update all materials
+          function updateMaterials(property, value) {
+              Object.values(materials).forEach(material => {
+                  material[property] = value;
+                  material.needsUpdate = true;
+              });
           }
+
+          // Transparent Property
+          folder.add({ transparent: false }, 'transparent').onChange(value => {
+              updateMaterials('transparent', value);
+          });
+          // Opacity Property
+          folder.add({ opacity: 1 }, 'opacity', 0, 1).step(0.01).onChange(value => {
+              updateMaterials('opacity', value);
+          });
+          // Depth Test Property
+          folder.add({ depthTest: true }, 'depthTest').onChange(value => {
+              updateMaterials('depthTest', value);
+          });
+          // Depth Write Property
+          folder.add({ depthWrite: true }, 'depthWrite').onChange(value => {
+              updateMaterials('depthWrite', value);
+          });
+          // Alpha Test Property
+          folder.add({ alphaTest: 0 }, 'alphaTest', 0, 1).step(0.1).onChange(value => {
+              updateMaterials('alphaTest', value);
+          });
+          // Visible Property
+          folder.add({ visible: true }, 'visible').onChange(value => {
+              updateMaterials('visible', value);
+          });
+          // Side Property
+          folder.add({ side: THREE.FrontSide }, 'side', {
+              FrontSide: THREE.FrontSide,
+              BackSide: THREE.BackSide,
+              DoubleSide: THREE.DoubleSide
+          }).onChange(value => {
+              updateMaterials('side', parseInt(value));
+          });
+        }
 
         function guiMeshLambertMaterial( gui, material, geometry ) {
 
@@ -777,9 +790,10 @@
         test.position.set(0, 1, 0)
         scene.add(test)
 
-        guiMaterial( gui, mat_left, test_geometry );
-        guiMaterial( gui, mat_center, test_geometry );
-        guiMaterial( gui, mat_right, test_geometry );
+        // Gui execution
+        const materials = {mat_left, mat_center, mat_right}
+        const geometries = {g_leftCone, g_centerSphere, g_rightCylinder}
+        guiMaterials( gui, materials, geometries );
         guiMeshLambertMaterial( gui, mat_left, test_geometry );
         guiMeshPhysicalMaterial( gui, mat_center, centerSphere )
         guiMeshPhongMaterial( gui, mat_right, rightCylinder )
