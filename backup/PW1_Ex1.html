@@ -96,8 +96,8 @@
 
     const clock = new THREE.Clock();
     
-    let currentCamera = camera;
-    let currentControl = FPcontrol;
+    let currentCamera = camera2;
+    let currentControl = OBcontrol;
     window.addEventListener("keydown", (event) => {
       if (event.key === "c") {
           currentCamera = currentCamera === camera ? camera2 : camera;
@@ -283,19 +283,18 @@
       new THREE.IcosahedronGeometry(radius, detail),
       new THREE.LatheGeometry( points ),
       new THREE.OctahedronGeometry(radius, detail),
-      // parametricGeometry
+      // parametricGeometry --> see below
       new THREE.PlaneGeometry(width, height, widthSegments, heightSegments),
       new THREE.PolyhedronGeometry(verticesOfCube, indicesOfFaces, radius, detail ),
       new THREE.RingGeometry(innerRadius, outerRadius, thetaSegments),
       new THREE.ShapeGeometry( shape, curveSegments ),
       new THREE.SphereGeometry(radius, widthSegments, heightSegments),
       new THREE.TetrahedronGeometry(radius, detail),
-      // textGeometry
+      // textGeometry --> see below
       new THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments, arc),
       new THREE.TorusKnotGeometry(radius, tube, tubularSegments, radialSegments, 2, 3),
       new THREE.TubeGeometry(path, tubularSegments, radius, radialSegments, closed ),// TODO: change parameter
       new THREE.EdgesGeometry(boxGeometry),
-      // WireframeGeometry
       new THREE.WireframeGeometry(boxGeometry),
       ];
       // show primitives 
@@ -303,23 +302,34 @@
       py = 0;
       pz = 0;
       primitives.forEach((geometry, index) => {
-          const mesh = new THREE.Mesh(geometry, material);
-          // console.log(py);
-          mesh.position.set(i * 5, py, pz); // Position on X-axis         
-          [py, pz] = get_position(index, py, pz);
-          // console.log(renderer.context);
-          if (geometry instanceof THREE.ExtrudeGeometry) {
-            mesh.scale.set(0.3, 0.3, 1);
+          if (geometry instanceof THREE.EdgesGeometry || geometry instanceof THREE.WireframeGeometry) {
+            const line = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xffffff }));
+            line.scale.set(0.3, 0.3, 1);
+            line.position.set(i * 5, py, pz); // Position on X-axis
+            [py, pz] = get_position(index, py, pz);
+            scene.add(line);
+          }else{
+            const mesh = new THREE.Mesh(geometry, material);
+            // console.log(py);
+            mesh.position.set(i * 5, py, pz); // Position on X-axis         
+            [py, pz] = get_position(index, py, pz);
+            // console.log(renderer.context);
+            if (geometry instanceof THREE.ExtrudeGeometry) {
+              mesh.scale.set(0.3, 0.3, 1);
+            }
+            if (geometry instanceof THREE.LatheGeometry) {
+              mesh.scale.set(0.3, 0.3, 1);
+            }
+            if (geometry instanceof THREE.ShapeGeometry) {
+              mesh.scale.set(0.3, 0.3, 1);
+            }
+            if (geometry instanceof THREE.TubeGeometry) {
+              mesh.scale.set(0.3, 0.3, 1);
+            }
+            
+            scene.add(mesh); 
           }
-          if (geometry instanceof THREE.LatheGeometry) {
-            mesh.scale.set(0.3, 0.3, 1);
-          }
-          if (geometry instanceof THREE.ShapeGeometry) {
-            mesh.scale.set(0.3, 0.3, 1);
-          }
-          scene.add(mesh); 
           num_prims = index
-
       });
       console.log('a:',py);
 
