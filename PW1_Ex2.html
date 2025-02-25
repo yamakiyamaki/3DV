@@ -68,13 +68,43 @@
     camera.position.set(50, 50, 50); // (X, Y, Z)
     camera.lookAt(0, 0, 0); // シーンの中心を注視
 
+    // OrthographicCamera
+    const left = -50;
+    const right = 50;
+    const top = 50;
+    const bottom = -50;
+    const near = 10;
+    const far = 50;
+    const camera2 = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
+    camera2.zoom = 0.2;
+    camera2.position.set(10, 30, 50);
+    camera2.lookAt(0, 20, 0); 
 
     ////////////////////////////////////////////////////////////////////////////////
     // controls
     ////////////////////////////////////////////////////////////////////////////////
     
+    // Initialize FirstPersonControls
+    const FPcontrol = new FirstPersonControls(camera, renderer.domElement);
+    FPcontrol.movementSpeed = 10; // Speed of movement
+    FPcontrol.lookSpeed = 0.1; // Speed of looking around
+    FPcontrol.lookVertical = true; 
+    FPcontrol.handleResize();
+
     // Initialize OrbitControls
-    const OBcontrol = new OrbitControls( camera, renderer.domElement );
+    const OBcontrol = new OrbitControls( camera2, renderer.domElement );
+
+    const clock = new THREE.Clock();
+    
+    let currentCamera = camera;
+    let currentControl = FPcontrol;
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "c") {
+          currentCamera = currentCamera === camera ? camera2 : camera;
+          currentControl = currentControl === FPcontrol ? OBcontrol : FPcontrol;
+          console.log("Camera switched");
+      }
+    });
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions
@@ -331,7 +361,7 @@
     // Parametric
     // import { ParametricGeometries } from './primitives/ParametricGeometries.js';
     // import { ParametricGeometry } from 'https://github.com/mrdoob/three.js/blob/b8d8a8625465bd634aa68e5846354d69f34d2ff5/examples/js/ParametricGeometries.js';
-    function createParametricGeometry() {
+    function createGeometry() {
       const slices = 25;  
       const stacks = 25;  
       const paraGeo = new ParametricGeometry(klein, slices, stacks );
@@ -357,7 +387,7 @@
     // !!!Careful about global and local!!! [py, pz] = get_position(num_prims, py, pz);
     const [py2, pz2] = get_position(num_prims, py, pz);
     for (let i = 1; i <= 3; i++) {
-      const geometry_para = createParametricGeometry();
+      const geometry_para = createGeometry();
       const mesh = new THREE.Mesh(geometry_para, material);
       
       mesh.position.set(i * 5, py2, pz2); // Position on X-axis
@@ -377,7 +407,9 @@
       // console.log(camera);
       // console.log(camera instanceof THREE.Camera); 
       // console.log(camera.constructor.name);
-      renderer.render(scene, camera);
+      currentControl.update(clock.getDelta());
+      console.log('camera1');
+      renderer.render(scene, currentCamera);
       // setTimeout(() => {
       //   renderer.render(scene, camera2);
       //   console.log('camera2');
