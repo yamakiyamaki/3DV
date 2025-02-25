@@ -348,17 +348,16 @@
         scene.add(sholder_L);
         scene.add(sholder_R);
 
-        // TODO: reduce the size of the robot
         sholder_L.scale.set(0.5, 0.5, 0.5);
         sholder_R.scale.set(0.5, 0.5, 0.5);
         arm_L.scale.set(0.5, 0.5, 0.5);
         arm_R.scale.set(0.5, 0.5, 0.5);
         main_body.scale.set(0.5, 0.5, 0.5);
-        sholder_L.position.set(-3, 16, -34);
-        sholder_R.position.set(3, 16, -34);
-        arm_L.position.set(7.5, 17.5, -30);
-        arm_R.position.set(-7.5, 17.5, -30);
-        main_body.position.set(0, 0, -30);
+        sholder_L.position.set(-3, 16, -74);
+        sholder_R.position.set(3, 16, -74);
+        arm_L.position.set(7.5, 17.5, -70);
+        arm_R.position.set(-7.5, 17.5, -70);
+        main_body.position.set(0, 0, -70);
 
         let controller, controllerGrip, raycaster;//mr
         controller = renderer.xr.getController( 0 );

@@ -1,0 +1,414 @@
+<!-- Licensed under a BSD license. See license.html for license -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>Three.js - Basic Cube</title>
+    <style>
+      html,
+      body {
+        width: 50%;
+        height: 50%;
+        margin: 0;
+      }
+
+      #c {
+        width: 50%;
+        height: 50%;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+  <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.172.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.172.0/examples/jsm/"
+      }
+    }
+  </script>
+
+<script type="module">
+  import * as THREE from 'three';
+  // import { TextGeometry } from '/three/examples/jsm/geometries/TextGeometry.js';
+  // import { FontLoader } from '/three/examples/jsm/loaders/FontLoader.js';
+  import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/geometries/TextGeometry.js';
+  import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/loaders/FontLoader.js';
+  import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
+  import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  
+
+    var scene = new THREE.Scene();
+    // var aspect = window.innerWidth / window.innerHeight;
+    // var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+    // camera.position.set(50, 50, 50); // (X, Y, Z)
+    // camera.lookAt(0, 0, 0); // シーンの中心を注視
+    var renderer = new THREE.WebGLRenderer();
+    // console.log(renderer.context);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // cameras
+    ////////////////////////////////////////////////////////////////////////////////
+
+    // camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 10000 );
+
+    // PerspectiveCamera
+    var aspect = window.innerWidth / window.innerHeight;
+    var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+    camera.position.set(50, 50, 50); // (X, Y, Z)
+    camera.lookAt(0, 0, 0); // シーンの中心を注視
+
+    // OrthographicCamera
+    const left = -50;
+    const right = 50;
+    const top = 50;
+    const bottom = -50;
+    const near = 10;
+    const far = 50;
+    const camera2 = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
+    camera2.zoom = 0.2;
+    camera2.position.set(10, 30, 50);
+    camera2.lookAt(0, 20, 0); 
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // controls
+    ////////////////////////////////////////////////////////////////////////////////
+    
+    // Initialize FirstPersonControls
+    const FPcontrol = new FirstPersonControls(camera, renderer.domElement);
+    FPcontrol.movementSpeed = 10; // Speed of movement
+    FPcontrol.lookSpeed = 0.1; // Speed of looking around
+    FPcontrol.lookVertical = true; 
+    FPcontrol.handleResize();
+
+    // Initialize OrbitControls
+    const OBcontrol = new OrbitControls( camera2, renderer.domElement );
+
+    const clock = new THREE.Clock();
+    
+    let currentCamera = camera;
+    let currentControl = FPcontrol;
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "c") {
+          currentCamera = currentCamera === camera ? camera2 : camera;
+          currentControl = currentControl === FPcontrol ? OBcontrol : FPcontrol;
+          console.log("Camera switched");
+      }
+    });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // functions
+    ////////////////////////////////////////////////////////////////////////////////
+    function mark_closs(x, y, z){
+      const material = new THREE.LineBasicMaterial( { color: 0x808080 } );
+      const points = [];
+      points.push( new THREE.Vector3( - 0.5, 0, 0 ) );
+      // points.push( new THREE.Vector3( 0, 10, 0 ) );
+      points.push( new THREE.Vector3( 0.5, 0, 0 ) );
+
+      const geometry = new THREE.BufferGeometry().setFromPoints( points );
+      const line_x = new THREE.Line( geometry, material );
+      const line_y = new THREE.Line( geometry, material );
+      line_x.position.set(x, y, z);
+      line_y.position.set(x, y, z);
+      line_y.rotation.y = Math.PI / 2;
+      scene.add( line_x );
+      scene.add( line_y );
+    }
+    // mark_closs(50, -50, 0);
+
+    function set_cross(){
+      const x = 0
+      const y = 0
+      const z = 0
+      for ( let x = 0; x < 100; x += 5 ) {
+        for ( let z = 0; z < 100; z += 5 ) {
+          mark_closs(x, y, z);
+        }
+      }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // primitives https://threejs.org/manual/#en/primitives
+    ////////////////////////////////////////////////////////////////////////////////
+    const width = 3;
+    const height = 3;
+    const depth = 3;
+    const widthSegments = 4;
+    const heightSegments = 4;
+    const depthSegments = 4;
+    const radius = 2;
+    const segments = 32;
+    const radiusTop = 2;
+    const radiusBottom = 1;
+    const innerRadius = 1;
+    const outerRadius = 2;
+    const thetaSegments = 18;
+    const tube = 0.4;
+    const radialSegments = 16;
+    const tubularSegments = 100;
+    const arc = Math.PI * 2;
+    const detail = 0;
+    const slices = 20;
+    const stacks = 10;
+
+    // const light = new THREE.PointLight( 0xff0000, 1, 100 );
+    // light.position.set( 50, 0, 5 );
+    // scene.add( light );
+
+    function get_position(index, py, pz){
+      if (index % 5 == 0) {
+        py = 0;
+        pz = pz + 10;
+        // console.log(py);
+      }else{
+        py = py + 10;
+        // console.log(py);
+      }
+      return [py, pz];
+    }
+
+    const material = new THREE.MeshNormalMaterial();
+    var num_prims = 0;
+    var py = 0;
+    var pz = 0;
+    // loop for x direction
+    for (let i = 1; i <= 3; i++) {
+      // console.log(i);
+      const height = i * 0.5;
+      const radius = i * 0.5;
+      const innerRadius = i * 0.5;
+
+      // Extrude
+      const extrudeGeometry = new THREE.Shape();
+      const x = -2.5;
+      const y = -5;
+      extrudeGeometry.moveTo(x + 2.5, y + 2.5);
+      extrudeGeometry.bezierCurveTo(x + 2.5, y + 2.5, x + 2, y, x, y);
+      extrudeGeometry.bezierCurveTo(x - 3, y, x - 3, y + 3.5, x - 3, y + 3.5);
+      extrudeGeometry.bezierCurveTo(x - 3, y + 5.5, x - 1.5, y + 7.7, x + 2.5, y + 9.5);
+      extrudeGeometry.bezierCurveTo(x + 6, y + 7.7, x + 8, y + 4.5, x + 8, y + 3.5);
+      extrudeGeometry.bezierCurveTo(x + 8, y + 3.5, x + 8, y, x + 5, y);
+      extrudeGeometry.bezierCurveTo(x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
+      const extrudeSettings = {
+      steps: 2,  
+      depth: 0.5*i*0.5,  
+      bevelEnabled: true,  
+      bevelThickness: 0.5,  
+      bevelSize: 1*i*0.5,  
+      bevelSegments: 2,  
+      };
+
+      //Lathe
+      const points = [];
+      for ( let j = 0; j < 10; ++ j ) {
+          points.push( new THREE.Vector2( Math.sin( j * 0.2 *i*0.5 ) * 3 + 3, ( j *i*0.5 - 5 ) * .8 ) );
+      }
+
+      //Polyhedron
+      const verticesOfCube = [
+      - 1, - 1, - 1, 1, - 1, - 1, 1, 1, - 1, - 1, 1, - 1,
+      - 1, - 1, 1, 1, - 1, 1, 1, 1, 1, - 1, 1, 1,
+      ];
+      const indicesOfFaces = [
+          2, 1, 0, 0, 3, 2,
+          0, 4, 7, 7, 3, 0,
+          0, 1, 5, 5, 4, 0,
+          1, 2, 6, 6, 5, 1,
+          2, 3, 7, 7, 6, 2,
+          4, 5, 6, 6, 7, 4,
+      ];
+
+      // Shape
+      const shape = new THREE.Shape();
+      const curveSegments =  1*i*10;
+      shape.moveTo( x + 2.5, y + 2.5 );
+      shape.bezierCurveTo( x + 2.5, y + 2.5, x + 2, y, x, y );
+      shape.bezierCurveTo( x - 3, y, x - 3, y + 3.5, x - 3, y + 3.5 );
+      shape.bezierCurveTo( x - 3, y + 5.5, x - 1.5, y + 7.7, x + 2.5, y + 9.5 );
+      shape.bezierCurveTo( x + 6, y + 7.7, x + 8, y + 4.5, x + 8, y + 3.5 );
+      shape.bezierCurveTo( x + 8, y + 3.5, x + 8, y, x + 5, y );
+      shape.bezierCurveTo( x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5 );
+
+      // Tube
+      class CustomSinCurve extends THREE.Curve {
+        constructor( scale ) {
+
+          super();
+          this.scale = scale;
+
+        }
+        getPoint( t ) {
+
+          const tx = t * 3 - 1.5;
+          const ty = Math.sin( 2 * Math.PI * t );
+          const tz = 0;
+          return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
+
+        }
+      }
+      const path = new CustomSinCurve( 4 );
+      const tubularSegments = 20;  
+      const radialSegments = 8;  
+      const closed = false;  
+
+      // EdgesGeometry and WireframeGeometry
+      const size = 8;
+      const widthSegments = 2;
+      const heightSegments = 2;
+      const depthSegments = 2;
+      const boxGeometry = new THREE.BoxGeometry(
+          size, size, size,
+          widthSegments, heightSegments, depthSegments);
+      
+
+      // Primitives array
+      const primitives = [
+      new THREE.BoxGeometry(width, height, depth),
+      new THREE.CircleGeometry(radius, segments),
+      new THREE.ConeGeometry(radius, height, segments),
+      new THREE.CylinderGeometry(radiusTop, radiusBottom, height, segments),
+      new THREE.DodecahedronGeometry(radius, detail),
+      new THREE.ExtrudeGeometry(extrudeGeometry, extrudeSettings),
+      new THREE.IcosahedronGeometry(radius, detail),
+      new THREE.LatheGeometry( points ),
+      new THREE.OctahedronGeometry(radius, detail),
+      // parametricGeometry
+      new THREE.PlaneGeometry(width, height, widthSegments, heightSegments),
+      new THREE.PolyhedronGeometry(verticesOfCube, indicesOfFaces, radius, detail ),
+      new THREE.RingGeometry(innerRadius, outerRadius, thetaSegments),
+      new THREE.ShapeGeometry( shape, curveSegments ),
+      new THREE.SphereGeometry(radius, widthSegments, heightSegments),
+      new THREE.TetrahedronGeometry(radius, detail),
+      // textGeometry
+      new THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments, arc),
+      new THREE.TorusKnotGeometry(radius, tube, tubularSegments, radialSegments, 2, 3),
+      new THREE.TubeGeometry(path, tubularSegments, radius, radialSegments, closed ),// TODO: change parameter
+      new THREE.EdgesGeometry(boxGeometry),
+      // WireframeGeometry
+      new THREE.WireframeGeometry(boxGeometry),
+      ];
+      // show primitives 
+      num_prims = 0;
+      py = 0;
+      pz = 0;
+      primitives.forEach((geometry, index) => {
+          const mesh = new THREE.Mesh(geometry, material);
+          // console.log(py);
+          mesh.position.set(i * 5, py, pz); // Position on X-axis         
+          [py, pz] = get_position(index, py, pz);
+          // console.log(renderer.context);
+          if (geometry instanceof THREE.ExtrudeGeometry) {
+            mesh.scale.set(0.3, 0.3, 1);
+          }
+          if (geometry instanceof THREE.LatheGeometry) {
+            mesh.scale.set(0.3, 0.3, 1);
+          }
+          if (geometry instanceof THREE.ShapeGeometry) {
+            mesh.scale.set(0.3, 0.3, 1);
+          }
+          scene.add(mesh); 
+          num_prims = index
+
+      });
+      console.log('a:',py);
+
+      
+      // Text
+      const loader = new FontLoader();
+      loader.load( './fonts/helvetiker_regular.typeface.json', function ( font ) {
+        console.log('a:',py);      
+        const geometry_text = new TextGeometry( 'A', {
+          font: font,
+          size: i * 1,
+          depth: 0.1,  
+          curveSegments: 12,  
+          bevelEnabled: false,  
+          bevelThickness: 0.01,  
+          bevelSize: 0.03,  
+          bevelSegments: 0.05,  
+        } );
+        const mesh = new THREE.Mesh(geometry_text, material);
+        mesh.position.set(i * 5, py, pz); // Position on X-axis
+        // console.log(py);
+        mesh.scale.set(1, 1, 0.01);
+        scene.add(mesh);
+      } );
+      num_prims = num_prims + 1
+    }
+
+
+    // Parametric
+    // import { ParametricGeometries } from './primitives/ParametricGeometries.js';
+    // import { ParametricGeometry } from 'https://github.com/mrdoob/three.js/blob/b8d8a8625465bd634aa68e5846354d69f34d2ff5/examples/js/ParametricGeometries.js';
+    function createGeometry() {
+      const slices = 25;  
+      const stacks = 25;  
+      const paraGeo = new ParametricGeometry(klein, slices, stacks );
+      // from: https://github.com/mrdoob/three.js/blob/b8d8a8625465bd634aa68e5846354d69f34d2ff5/examples/js/ParametricGeometries.js
+      function klein( v, u, target ) {
+        u *= Math.PI;
+        v *= 2 * Math.PI;
+        u = u * 2;
+        let x;
+        let z;
+        if ( u < Math.PI ) {
+          x = 3 * Math.cos( u ) * ( 1 + Math.sin( u ) ) + ( 2 * ( 1 - Math.cos( u ) / 2 ) ) * Math.cos( u ) * Math.cos( v );
+          z = - 8 * Math.sin( u ) - 2 * ( 1 - Math.cos( u ) / 2 ) * Math.sin( u ) * Math.cos( v );
+        } else {
+          x = 3 * Math.cos( u ) * ( 1 + Math.sin( u ) ) + ( 2 * ( 1 - Math.cos( u ) / 2 ) ) * Math.cos( v + Math.PI );
+          z = - 8 * Math.sin( u );
+        }
+        const y = - 2 * ( 1 - Math.cos( u ) / 2 ) * Math.sin( v );
+        target.set( x, y, z ).multiplyScalar( 0.75 );
+      }
+      return paraGeo;
+    }
+    // !!!Careful about global and local!!! [py, pz] = get_position(num_prims, py, pz);
+    const [py2, pz2] = get_position(num_prims, py, pz);
+    for (let i = 1; i <= 3; i++) {
+      const geometry_para = createGeometry();
+      const mesh = new THREE.Mesh(geometry_para, material);
+      
+      mesh.position.set(i * 5, py2, pz2); // Position on X-axis
+      mesh.scale.set(0.3, 0.3, 0.3);
+      scene.add(mesh);
+    }
+    num_prims = num_prims + 1
+    
+    
+
+    // scene.background = new THREE.Color(0xffffff); // Set background to white
+    function render () {
+      set_cross();
+      requestAnimationFrame(render);
+      // cube.rotation.x += 0.1;
+      // cube.rotation.y += 0.1; 
+      // console.log(camera);
+      // console.log(camera instanceof THREE.Camera); 
+      // console.log(camera.constructor.name);
+      currentControl.update(clock.getDelta());
+      console.log('camera1');
+      renderer.render(scene, currentCamera);
+      // setTimeout(() => {
+      //   renderer.render(scene, camera2);
+      //   console.log('camera2');
+      // }, 3000);
+    };
+    
+    render();
+    
+
+    </script>
+  </body>
+</html>
