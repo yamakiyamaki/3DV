@@ -263,7 +263,7 @@
       const closed = false;  
 
       // EdgesGeometry and WireframeGeometry
-      const size = 8;
+      const size = 8 * i * 0.5;
       const widthSegments = 2;
       const heightSegments = 2;
       const depthSegments = 2;
@@ -293,9 +293,9 @@
       // textGeometry --> see below
       new THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments, arc),
       new THREE.TorusKnotGeometry(radius, tube, tubularSegments, radialSegments, 2, 3),
-      new THREE.TubeGeometry(path, tubularSegments, radius, radialSegments, closed ),// TODO: change parameter
-      new THREE.EdgesGeometry(boxGeometry),
-      new THREE.WireframeGeometry(boxGeometry),
+      new THREE.TubeGeometry(path, tubularSegments, radius, radialSegments, closed ),
+      new THREE.EdgesGeometry(boxGeometry), 
+      new THREE.WireframeGeometry(boxGeometry), 
       ];
       // show primitives 
       num_prims = 0;
