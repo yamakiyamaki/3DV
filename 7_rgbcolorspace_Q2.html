@@ -22,7 +22,7 @@
 
 		void main() {
 			color = texture2D ( tex, position.xy ).rgb; ;// texture coordinate color
-			vec4 mvPosition = modelViewMatrix * vec4(color.xyz-vec3(.5,.5,.5), 1.0);
+			vec4 mvPosition = modelViewMatrix * vec4(color.xyz-vec3(.1,.5,.5), 1.0); //(x,y,z,magnification)
 			gl_PointSize = 5.0/(- mvPosition.z);
 			
 			//gl_Position = projectionMatrix * modelViewMatrix * vec4(color-vec3(.5,.5,.5), 1.0);
@@ -34,13 +34,13 @@
 		varying vec3 color;
 
 		void main() {
-			gl_FragColor.rgb = color;
-			gl_FragColor.a = 1.0;
-
-
-
 			;// Q2 make it transparent
-			gl_FragColor = vec4( color, 0.3);
+			gl_FragColor.rgb = color;
+            gl_FragColor.a = 0.3;
+
+            // Change shape of point to sphere
+			float l = length( gl_PointCoord - vec2( 0.5, 0.5 )); // -vec2(0.5,0.5) is the offset
+            if ( l > 0.475 ) discard;// cutting square to circle with radius 0.475
 		}
 	</script>
 
@@ -86,6 +86,10 @@
 			scene = new THREE.Scene();
 			scene.background = new THREE.Color(0xcccccc);
 
+			const light = new THREE.AmbientLight(0xffffff);
+			scene.add(light);
+			light.intensity =5.0;
+
 			const loader = new THREE.TextureLoader();
 			loader.load('resources/images/grenouille.jpg', function (texture) {
 				var discret = 1; // 1 means same amout of , pixel
@@ -93,6 +97,7 @@
 				var colorSpaceMaterial = new THREE.ShaderMaterial({
 					vertexShader: document.getElementById('RGBVertexShader').textContent,
 					fragmentShader: document.getElementById('RGBFragmentShader').textContent,
+					// transparent: true,
 					uniforms: {
 						tex: { value: texture },
 					}

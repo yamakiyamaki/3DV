@@ -17,13 +17,11 @@
     <div id="container"></div>
 
     <script id="vertexShader" type="x-shader/x-vertex">
-      uniform float time;
+      uniform float time; // from render()
       varying vec2 vUv;
       void main()
       { 
-        ;//vUv = (uv - 0.5) * abs(sin(time*2.)) + 0.5;
-        ;//vUv = (uv - 0.5) * (0.5-log2(time)*0.1) + 0.5;
-        vUv = ((uv)*(uv))*(4.0-log2(time)*0.5);
+        vUv = uv;
         ;//gl_Position = projectionMatrix * modelViewMatrix * vec4 (position.x, position.y, position.z+cos(position.x*15.0)*cos(time)/20.0, 1.0);
           gl_Position = projectionMatrix * modelViewMatrix * vec4 (position.x, position.y, position.z, 1.0);// fourth dimension is normalization. I have memo in goodnote5
       }
@@ -36,8 +34,25 @@
 
       void main()
       {
-        vec3 texColor = texture2D ( tex, vUv ).rgb;
-          gl_FragColor = vec4(texColor, 1.0);
+
+        // WRAP SPEED EFFECT
+        //vUv is a vec2 (2-component vector) that will store texture coordinates for each vertex.
+        ;//vUv = (uv - 0.5) * abs(sin(time*2.)) + 0.5;
+        ;//vUv = (uv - 0.5) * (0.5-log2(time)*0.1) + 0.5;
+        //vUv = ((uv)*(uv))*(4.0-log2(time)*0.5);
+
+        
+        vec2 centeredUv = vUv - 0.5;
+        float dist = length(centeredUv);// length from 0, -0.5 -> 0.5, 0.5 -> 0.5
+        float sinValue = sin(time * 0.5) + 1.;
+        vec2 starUV = ((vUv-0.5) * ((1.-time*0.02)*log2(dist)) + 0.5);
+        if (centeredUv.x > 0.2) discard;
+        if (centeredUv.y > 0.2) discard;
+        if (centeredUv.x < -0.2) discard;
+        if (centeredUv.y < -0.2) discard;
+
+        vec3 texColor = texture2D ( tex, starUV ).rgb;
+        gl_FragColor = vec4(texColor, 1.0);
       }
     </script>
 
@@ -68,8 +83,9 @@
       var textureForShader;
       var textureLoader = new THREE.TextureLoader();
 
+      //textureLoader.load("resources/images/grenouille.jpg", function (texture) {
       textureLoader.load("resources/images/star.jpg", function (texture) {
-        textureForShader = texture;
+          textureForShader = texture;
         init();
         startTime = Date.now();
         animate();
